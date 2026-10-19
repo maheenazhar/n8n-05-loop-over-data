@@ -1,0 +1,223 @@
+{
+  "name": "Batch Processing & Loop Throttling",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        0
+      ],
+      "id": "934d625f-15dd-4661-9d24-ad0363234433",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1bJGgrX-MxSg_zUGOesikIntbMsDrIp1hJ-FEkqgw2No",
+          "mode": "list",
+          "cachedResultName": "Loop Over Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bJGgrX-MxSg_zUGOesikIntbMsDrIp1hJ-FEkqgw2No/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bJGgrX-MxSg_zUGOesikIntbMsDrIp1hJ-FEkqgw2No/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "8e7e3290-9e34-4b61-b17d-36f3e15480f5",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m0K9VKc2oAMyYpp0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        80,
+        0
+      ],
+      "id": "a006dc4a-1f91-4264-b1d0-0b9b3a6ffd70",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "Hello",
+        "emailType": "text",
+        "message": "=Hello: {{ $('Get row(s) in sheet').item.json.Name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        48
+      ],
+      "id": "09ee1612-0e37-4323-9929-bc705223ef4c",
+      "name": "Send a message",
+      "webhookId": "f995af74-cfab-4307-a75f-e93ff2ec178c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "D8aA06uBVb5vR05d",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        32
+      ],
+      "id": "b4dd1383-8aaa-4df3-a135-7b07affe9213",
+      "name": "Wait",
+      "webhookId": "d7f5171e-7f13-4839-afb6-2c2b3d75d25d"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "Email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        -96
+      ],
+      "id": "8ef653b7-0283-4168-aa3a-de0d892d6962",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "sendTo": "maheenazhar621@gmail.com",
+        "subject": "Sucess",
+        "emailType": "text",
+        "message": "Email send sucessfully!!!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        -96
+      ],
+      "id": "e6a95ddf-c43f-470e-bbb3-100aae2754a0",
+      "name": "Send a message1",
+      "webhookId": "8f0d7e0c-342f-4cf9-a86f-81d01aee9f9b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "D8aA06uBVb5vR05d",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        []
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d964baea-0a6b-4de0-b912-2d16a276bd0e",
+  "id": "kZqRN08xDL3s3OI3",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {}
+}
